@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: Fika Timers
+## Notes: Snus Schedule for <Fika> raiders using Bigwigs timers.
+## Dependencies: BigWigs
+## Version: 1.0
+## Author: Azzco
+
+FikaTimers.lua

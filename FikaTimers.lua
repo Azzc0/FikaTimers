@@ -27,24 +27,58 @@ function FikaTimers:OnEnable()
         end
     end)
     
-    -- Register slash commands
-    self:RegisterChatCommand("ft", function(input)
-        local command = string.lower(input)
-        if command == "list" then
-            self:ListScheduledTimers()
-        elseif command == "clear" then
-            self:ClearScheduledTimers()
-        elseif string.find(command, "^schedule%s+") then
-            self:HandleScheduledTimer(string.sub(command, 9))
-        elseif string.find(command, "^timer%s+") then
-            self:HandleTimer(string.sub(command, 6))
-        else
-            self:Print("Usage: /ft {timer <duration> <name>|schedule HH:MM <duration>m <name>|list|clear}")
-        end
-    end)
+    -- Register slash commands with proper format
+    self:RegisterChatCommand({ "/ft", "/fikatimers" }, {
+        type = "group",
+        desc = "FikaTimers commands",
+        args = {
+            list = {
+                type = "execute",
+                name = "List timers",
+                desc = "List all scheduled timers",
+                func = function() self:ListScheduledTimers() end,
+            },
+            clear = {
+                type = "execute",
+                name = "Clear timers",
+                desc = "Clear all scheduled timers",
+                func = function() self:ClearScheduledTimers() end,
+            },
+            schedule = {
+                type = "text",
+                name = "Schedule timer",
+                desc = "Schedule a timer for later",
+                usage = "<HH:MM> <duration>m <name>",
+                get = false,
+                set = function(v) self:HandleScheduledTimer(v) end,
+            },
+            timer = {
+                type = "text",
+                name = "Create timer",
+                desc = "Create an immediate timer",
+                usage = "<duration> <name>",
+                get = false,
+                set = function(v) self:HandleTimer(v) end,
+            },
+        }
+    })
     
-    -- Register as BigWigs module
-    BigWigs:RegisterModule(self)
+    -- Register as BigWigs module with all required fields
+    self.core = BigWigs
+    self.name = "FikaTimers"
+    self.consoleOptions = false
+    self.external = true  -- Mark as external module
+    self.defaultDB = {}   -- Add default database
+    self.consoleCmd = nil -- No console commands needed
+    self.zonename = nil   -- Not zone specific
+    self.enabletrigger = nil -- No trigger needed
+
+
+    -- Add IsBossModule method
+    function self:IsBossModule() 
+        return false
+    end
+    BigWigs:RegisterModule(self.name, self)
 end
 
 function FikaTimers:HandleTimer(input)
